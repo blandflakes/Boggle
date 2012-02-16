@@ -1,0 +1,46 @@
+A solver for the boggle game, and board generator.
+
+boggle.rb contains the logic for opening a boggle puzzle, generating the board object,
+and finding all possible words in the puzzle.  To use:
+
+agent = BoggleAgent.new(puzzle_path, dict_path)
+
+puzzle_path points to a 5x5, comma separated grid of characters representing a boggle
+board. dict_path points to a dictionary of valid words.
+
+agent.solve(found_words_file_path)
+
+solves the puzzle. If the found_words_file_path is provided, outputs the results to the file.
+
+test_agent.rb shows an example of how to use the agent.
+
+The agent solves efficiently by using dict_map.  This is a dictionary structure that allows
+very fast checking for words. I exposed the API to BoggleAgent for fast, easy searching.
+
+The map is a map of maps of maps of....
+
+In essence the first level is each character of the alphabet that begins a word in the provided
+dictionary.  When checking to see if a word exists, you begin with its first letter.  That
+node has for successors a map for each possible letter that could follow this letter based
+on the dictionary.  If there are no successors with the letter you're trying, the word
+you're looking at is not in the dictionary.
+
+I included some optimizations to allow this to work even faster for the Boggle game:
+-an exhausted flag - if all successors beyond this letter have been exhausted, the word
+may as well be invalid because we aren't looking for duplicates.  This would not be useful
+for the dict_map if it's being used in other locations.
+
+The optimizer is used to generate an optimal board for the game of Boggle.  It uses
+genetic algorithms, with the following steps:
+1) Create 100 random boards
+2) select 100 parents based on fitness (higher scoring boards via the agent have a
+	higher chance of being selected)
+3) mate those 100 boards in pairs with a randomly selected crossover point
+4) mutate cells randomly
+5) repeat until time is up
+
+The optimizer contains its own test code.
+
+optimal_board.txt is an example of a high scoring board
+test_dict.txt is a dictionary to use for valid words
+boards is the directory that generated boards are stored in.
